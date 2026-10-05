@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Self-hosted NetBox instances often use plain HTTP or a self-signed / internal-CA certificate.
-     Allow cleartext and trust user-installed CA certificates in addition to the system store. -->
+<!-- Self-hosted NetBox instances are often plain HTTP, so cleartext stays allowed (see the manifest).
+     Sectigo Public Server Authentication Root R46 is a public root CA that older Android releases
+     don't ship in their system store yet (browsers with their own root store already trust it), so
+     bundle it as an extra trust anchor - otherwise e.g. Sectigo DV R36-issued certs fail with
+     "Trust anchor for certification path not found". -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
+            <certificates src="@raw/sectigo_public_server_authentication_root_r46" />
         </trust-anchors>
     </base-config>
 </network-security-config>
