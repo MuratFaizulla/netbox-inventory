@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.pschmitt.nyetbox.BuildConfig
+import dev.pschmitt.nyetbox.data.api.AiaFetchingTrustManager
 import dev.pschmitt.nyetbox.data.api.AuthInterceptor
 import dev.pschmitt.nyetbox.data.api.DynamicBaseUrlInterceptor
 import dev.pschmitt.nyetbox.data.api.GenericNetBoxApi
@@ -47,6 +48,10 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    // Shared by every client that talks to the user's NetBox instance, so servers that omit their
+    // intermediate certificate still validate (see AiaFetchingTrustManager).
+    private val tls by lazy { AiaFetchingTrustManager.create() }
+
     @Provides
     @Singleton
     fun provideJson(): Json = Json {
@@ -73,6 +78,7 @@ object NetworkModule {
                     else HttpLoggingInterceptor.Level.NONE
             }
         return OkHttpClient.Builder()
+            .sslSocketFactory(tls.first, tls.second)
             // Rewrites scheme/host/path to the configured instance - added first so auth/logging
             // see the real request.
             .addInterceptor(dynamicBaseUrlInterceptor)
@@ -95,6 +101,7 @@ object NetworkModule {
                     else HttpLoggingInterceptor.Level.NONE
             }
         return OkHttpClient.Builder()
+            .sslSocketFactory(tls.first, tls.second)
             .addInterceptor(offlineModeInterceptor)
             .addInterceptor(authInterceptor)
             .addInterceptor(logging)
