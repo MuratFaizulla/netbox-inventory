@@ -1,5 +1,6 @@
 package dev.pschmitt.nyetbox.data.api
 
+import dev.pschmitt.nyetbox.BuildConfig
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.KeyStore
@@ -91,7 +92,14 @@ class AiaFetchingTrustManager(private val delegate: X509TrustManager) : X509Trus
             val factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
             factory.init(null as KeyStore?)
             val platform = factory.trustManagers.filterIsInstance<X509TrustManager>().first()
-            val trustManager = AiaFetchingTrustManager(platform)
+            val aia = AiaFetchingTrustManager(platform)
+            // TEMPORARY: see DebugInsecureHostTrustManager - debug builds only, one host only.
+            val trustManager =
+                if (BuildConfig.DEBUG) {
+                    DebugInsecureHostTrustManager(aia, setOf("web-netbox.t-cloud.kz"))
+                } else {
+                    aia
+                }
             val context = SSLContext.getInstance("TLS")
             context.init(null, arrayOf(trustManager), null)
             return context.socketFactory to trustManager
