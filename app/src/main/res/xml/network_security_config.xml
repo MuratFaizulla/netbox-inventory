@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Self-hosted NetBox instances often use plain HTTP or a self-signed / internal-CA certificate.
+     Allow cleartext and trust user-installed CA certificates in addition to the system store. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

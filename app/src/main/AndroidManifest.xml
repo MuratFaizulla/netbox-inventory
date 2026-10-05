@@ -39,6 +39,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nyetbox"
         android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="34">
 
         <!-- usesCleartextTraffic=true: self-hosted NetBox instances are frequently plain HTTP on
